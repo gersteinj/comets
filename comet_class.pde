@@ -5,12 +5,23 @@ class Comet {
   PVector acc;
   PVector[] locs;
   int hue;
+  int sat;
+  int bright;
+  int alpha;
   boolean stillAlive;
 
   Comet(int _tailLength) {
     tailLength = _tailLength;
     stillAlive = true;
-    hue = frameCount%360;
+    if (coloration == 0 || coloration == 1) {
+      hue = frameCount%360;
+    }
+    if (coloration == 2) {
+      hue = makeItThisHue;
+      sat = makeItThisSat;
+      bright = makeItThisBright;
+      alpha = makeItThisAlpha;
+    }
     if (startMode == 0) {
       loc = new PVector(random(width), random(height));
     }
@@ -28,12 +39,20 @@ class Comet {
   void display() {
 
     for (int i = 0; i < locs.length; i++) {
-      fill(hue, 50, 100, 15);
+      if (coloration != 2) {
+        fill(hue, 50, 100, 5);
+      }
+      if (coloration == 2) {
+        fill(hue, sat, bright, alpha);
+      }
       ellipse(locs[i].x, locs[i].y, i, i);
     }
   }
 
   void update() {
+    if (coloration == 0) {
+      hue = frameCount%360;
+    }
     vel.add(acc);
     loc.add(vel);
     acc = new PVector(random(-.5, .5), random(-.5, .5));
