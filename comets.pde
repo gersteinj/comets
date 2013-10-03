@@ -1,65 +1,36 @@
+/*
+For all comets to spawn at center, set startMode to 1.
+For comets to spawn randomly, set startMode to 0.
+*/
+
+int startMode = 1;
+
+//declare a new ArrayList for the comets
 ArrayList<Comet> comets = new ArrayList<Comet>();
 
 void setup() {
   size(500, 500);
   noStroke();
-  //  fill(255,30);
   colorMode(HSB, 360, 100, 100, 100);
 }
 
 void draw() {
-  comets.add(new Comet());
+  //print the size of the ArrayList to make sure it doesn't grow unreasonably large
+  println(comets.size());
+  //each frame, add a new comet to the ArrayList
+  comets.add(new Comet(30));
   background(0);
+  //Iterate backwards through the ArrayList
   for (int i = comets.size()-1; i >= 0; i --) {
+    //c will act as a placeholder for the comet currently being worked with
     Comet c = comets.get(i);
     c.display();
     c.update();
+    c.edgeCheck();
+    //check the value of the stillAlive variable, and remove if comet is dead
     if (!c.stillAlive) {
+      println("DIE!");
       comets.remove(i);
-    }
-  }
-}
-
-class Comet {
-  PVector loc;
-  PVector vel;
-  PVector acc;
-  PVector[] locs;
-  int hue;
-  boolean stillAlive;
-
-  Comet() {
-    stillAlive = true;
-    hue = frameCount%360;
-    loc = new PVector(width/2, height/2);
-    vel = new PVector(0, 0);
-    acc = new PVector(random(-.5, .5), random(-.5, .5));
-    locs = new PVector[20];
-    for (int i = 0; i < locs.length; i++) {
-      locs[i] = new PVector(random(width), random(height));
-    }
-  }
-
-  void display() {
-
-    for (int i = 0; i < locs.length; i++) {
-      fill(hue, 50, 100, 20);
-      ellipse(locs[i].x, locs[i].y, i, i);
-    }
-  }
-
-  void update() {
-    vel.add(acc);
-    loc.add(vel);
-    acc = new PVector(random(-.5, .5), random(-.5, .5));
-    for (int i = 0; i < locs.length-1; i++) {
-      locs[i] = locs[i+1];
-    }
-    locs[locs.length-1] = new PVector(loc.x, loc.y);
-  }
-  void edgeCheck() {
-    if ((loc.x > width*2 || loc.x < -width) && (loc.y > height * 2 || loc.y < -height)) {
-      stillAlive = false;
     }
   }
 }
