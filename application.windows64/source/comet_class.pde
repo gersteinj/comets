@@ -18,15 +18,16 @@ class Comet {
     }
     if (coloration == 2) {
       hue = makeItThisHue;
-      sat = makeItThisSat;
-      bright = makeItThisBright;
-      alpha = makeItThisAlpha;
     }
+    sat = makeItThisSat;
+    bright = makeItThisBright;
+    alpha = makeItThisAlpha;
+
     if (startMode == 0) {
       loc = new PVector(random(width), random(height));
     }
     else {
-      loc = new PVector(width/2, height/2);
+      loc = new PVector(origin.x,origin.y);
     }
     vel = new PVector(0, 0);
     acc = new PVector(random(-.5, .5), random(-.5, .5));
@@ -39,12 +40,9 @@ class Comet {
   void display() {
 
     for (int i = 0; i < locs.length; i++) {
-      if (coloration != 2) {
-        fill(hue, 50, 100, 5);
-      }
-      if (coloration == 2) {
-        fill(hue, sat, bright, alpha);
-      }
+
+      fill(hue, sat, bright, alpha);
+
       ellipse(locs[i].x, locs[i].y, i, i);
     }
   }
@@ -62,7 +60,7 @@ class Comet {
     locs[locs.length-1] = new PVector(loc.x, loc.y);
   }
   void edgeCheck() {
-    if ((loc.x > width*1.25 || loc.x < -width*.25 || loc.y > height * 1.25 || loc.y < -height*.25)) {
+    if ((loc.x > width*2 || loc.x < -width || loc.y > height * 2 || loc.y < -height)) {
       stillAlive = false;
     }
   }

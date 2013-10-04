@@ -15,11 +15,12 @@ import java.io.IOException;
 public class comets extends PApplet {
 
 /*
-For all comets to spawn at center, set startMode to 1.
- For comets to spawn randomly, set startMode to 0.
+For comets to spawn randomly, set startMode to 0.
+ For all comets to spawn at center, set startMode to 1.
+ For wandering origin, set startMode to 2
  */
 
-int startMode = 1;
+int startMode =2;
 
 /*
 For rainbow(all comets simultaneously), set coloration to 0
@@ -29,9 +30,9 @@ For rainbow(all comets simultaneously), set coloration to 0
 
 int coloration = 1;
 int makeItThisHue = 20;
-int makeItThisSat = 30;
+int makeItThisSat = 70;
 int makeItThisBright = 100;
-int makeItThisAlpha = 3;
+int makeItThisAlpha = 10;
 
 /*
 Set the length of the comet tail here
@@ -41,13 +42,50 @@ int cometTailLength = 40;
 //declare a new ArrayList for the comets
 ArrayList<Comet> comets = new ArrayList<Comet>();
 
+//create a PVector for the origin and more to move it
+PVector origin;
+PVector originVel;
+PVector originAcc;
+
+
 public void setup() {
   size(500, 500);
   noStroke();
   colorMode(HSB, 360, 100, 100, 100);
+  if (startMode <= 1) {
+    origin = new PVector(width/2, height/2);
+    originVel = new PVector(0, 0);
+    originAcc = new PVector(0, 0);
+  }
+  if (startMode == 2) {
+    origin = new PVector(random(width), random(height));
+    originVel = new PVector(0, 0);
+    originAcc = new PVector(random(-.2f, .2f), random(-.2f, .2f));
+  }
 }
 
 public void draw() {
+  //Move the origin if appropriate
+  originVel.add(originAcc);
+  origin.add(originVel);
+  if (startMode == 2) {
+    originAcc = new PVector(random(-.2f, .2f), random(-.2f, .2f));
+  }
+
+  //Make sure the origin doesn't run away
+  if (origin.x > width) {
+    originVel.x = -abs(originVel.x);
+  }
+  if (origin.x < 0) {
+    originVel.x = abs(originVel.x);
+  }
+  if (origin.y > height) {
+    originVel.y = -abs(originVel.y);
+  }
+  if (origin.y < 0) {
+    originVel.y = abs(originVel.y);
+  }
+
   //print the size of the ArrayList to make sure it doesn't grow unreasonably large
   println(comets.size());
   //each frame, add a new comet to the ArrayList
@@ -88,15 +126,16 @@ class Comet {
     }
     if (coloration == 2) {
       hue = makeItThisHue;
-      sat = makeItThisSat;
-      bright = makeItThisBright;
-      alpha = makeItThisAlpha;
     }
+    sat = makeItThisSat;
+    bright = makeItThisBright;
+    alpha = makeItThisAlpha;
+
     if (startMode == 0) {
       loc = new PVector(random(width), random(height));
     }
     else {
-      loc = new PVector(width/2, height/2);
+      loc = new PVector(origin.x,origin.y);
     }
     vel = new PVector(0, 0);
     acc = new PVector(random(-.5f, .5f), random(-.5f, .5f));
@@ -109,12 +148,9 @@ class Comet {
   public void display() {
 
     for (int i = 0; i < locs.length; i++) {
-      if (coloration != 2) {
-        fill(hue, 50, 100, 5);
-      }
-      if (coloration == 2) {
-        fill(hue, sat, bright, alpha);
-      }
+
+      fill(hue, sat, bright, alpha);
+
       ellipse(locs[i].x, locs[i].y, i, i);
     }
   }
@@ -132,14 +168,14 @@ class Comet {
     locs[locs.length-1] = new PVector(loc.x, loc.y);
   }
   public void edgeCheck() {
-    if ((loc.x > width*1.25f || loc.x < -width*.25f || loc.y > height * 1.25f || loc.y < -height*.25f)) {
+    if ((loc.x > width*2 || loc.x < -width || loc.y > height * 2 || loc.y < -height)) {
       stillAlive = false;
     }
   }
 }
 
   static public void main(String[] passedArgs) {
-    String[] appletArgs = new String[] { "comets" };
+    String[] appletArgs = new String[] { "--full-screen", "--bgcolor=#666666", "--stop-color=#cccccc", "comets" };
     if (passedArgs != null) {
       PApplet.main(concat(appletArgs, passedArgs));
     } else {
